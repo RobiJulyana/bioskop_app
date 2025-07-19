@@ -1,3 +1,7 @@
-java -cp ".;lib/sqlite-jdbc.jar;src" Main - Mulai supaya terkoneksi dengan DB
-
 javac -cp ".;lib/sqlite-jdbc.jar" src/*.java - Build Project
+
+Buka folder biokop-app di VSCode buka terminal Jalankan java -cp ".;lib/sqlite-jdbc.jar;src" Main untuk memulai aplikasi (terkoneksi ke Database).
+
+Bisa juga klik 2x Main.java untuk memulai aplikasi (tidak terkoneksi ke Database).
+
+Pastikan booking.db berada satu folder dengan file .class hasil kompilasi.
