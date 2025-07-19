@@ -1,0 +1,82 @@
+@startuml
+
+' ==== Class Diagram for Aplikasi Pemesanan Tiket Bioskop ====
+class Film {
+    - id: int
+    - title: String
+    - genre: String
+    - duration: int
+    - studioId: int
+    + getId(): int
+    + getTitle(): String
+    + getGenre(): String
+    + getDuration(): int
+    + getStudioId(): int
+}
+
+class Studio {
+    - id: int
+    - name: String
+    - capacity: int
+    + getId(): int
+    + getName(): String
+    + getCapacity(): int
+}
+
+class ShowTime {
+    - id: int
+    - filmId: int
+    - time: String
+    - date: String
+    + getId(): int
+    + getFilmId(): int
+    + getTime(): String
+    + getDate(): String
+}
+
+class Booking {
+    - id: int
+    - filmTitle: String
+    - showDate: String
+    - showTime: String
+    - selectedSeats: List<String>
+    + getBookingInfo(): String
+}
+
+class Admin {
+    - username: String
+    - password: String
+    + login(): boolean
+}
+
+class DBHelper {
+    + getFilmList(): List<Film>
+    + getShowTimes(filmId: int): List<ShowTime>
+    + getBookedSeats(film: String, date: String, time: String): List<String>
+    + bookSeats(film: String, date: String, time: String, seats: List<String>): void
+    + getStudioList(): List<Studio>
+}
+
+Film "1" --> "*" ShowTime
+Studio "1" --> "*" Film
+ShowTime "1" --> "*" Booking
+Booking --> DBHelper : uses
+Admin --> DBHelper : manages
+
+@enduml
+
+
+@startuml
+' ==== State Diagram: Pemesanan Kursi ====
+
+[*] --> PilihFilm
+PilihFilm --> PilihJadwal : film dipilih
+PilihJadwal --> PilihKursi : jadwal dipilih
+PilihKursi --> KonfirmasiPesanan : kursi dipilih
+KonfirmasiPesanan --> Selesai : konfirmasi
+Selesai --> [*]
+KonfirmasiPesanan --> PilihKursi : kembali pilih kursi
+PilihKursi --> PilihJadwal : kembali
+PilihJadwal --> PilihFilm : kembali
+
+@enduml
