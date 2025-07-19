@@ -1,0 +1,3 @@
+java -cp ".;lib/sqlite-jdbc.jar;src" Main - Mulai supaya terkoneksi dengan DB
+
+javac -cp ".;lib/sqlite-jdbc.jar" src/*.java - Build Project
