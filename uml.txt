@@ -1,82 +1,373 @@
 @startuml
 
-' ==== Class Diagram for Aplikasi Pemesanan Tiket Bioskop ====
-class Film {
-    - id: int
-    - title: String
-    - genre: String
-    - duration: int
-    - studioId: int
-    + getId(): int
-    + getTitle(): String
-    + getGenre(): String
-    + getDuration(): int
-    + getStudioId(): int
++---------------------------------------------------+
+|                 FilmCatalog                       |
+| (extends JFrame)                                  |
++---------------------------------------------------+
+| - catalogPanel: JPanel                            |
+| - scrollPane: JScrollPane                         |
+| - autoReloadTimer: Timer                          |
++---------------------------------------------------+
+| + FilmCatalog()                                   |
+| - loadCatalog(): void                             |
++---------------------------------------------------+
+class FilmCatalog {
+    - catalogPanel: JPanel
+    - scrollPane: JScrollPane
+    - autoReloadTimer: Timer
+    + FilmCatalog()
+    - loadCatalog(): void
 }
 
-class Studio {
-    - id: int
+FilmCatalog --|> JFrame
+FilmCatalog ..> BookingPanel
+FilmCatalog ..> AdminLoginFrame
+
+
+
+
++------------------------------------------------------------+
+|                       BookingPanel                         |
+|                    (extends JFrame)                        |
++------------------------------------------------------------+
+| - filmField: JTextField                                    |
+| - nameField: JTextField                                    |
+| - timeBox: JComboBox<String>                               |
+| - seatCountSpinner: JSpinner                               |
+| - seatPanel: SeatSelectionPanel                            |
+| - selectedFilmId: String                                   |
+| - selectedFilmTitle: String                                |
+| - dateField: JTextField                                    |
++------------------------------------------------------------+
+| + BookingPanel(filmId: String)                             |
+| - loadShowtimesFromDatabase(filmId: String): void          |
+| - getFilmTitleById(filmId: String): String                 |
++------------------------------------------------------------+
+class BookingPanel {
+    - filmField: JTextField
+    - nameField: JTextField
+    - timeBox: JComboBox<String>
+    - seatCountSpinner: JSpinner
+    - seatPanel: SeatSelectionPanel
+    - selectedFilmId: String
+    - selectedFilmTitle: String
+    - dateField: JTextField
+
+    + BookingPanel(filmId: String)
+    - loadShowtimesFromDatabase(filmId: String): void
+    - getFilmTitleById(filmId: String): String
+}
+
+BookingPanel --|> JFrame
+BookingPanel ..> SeatSelectionPanel
+BookingPanel ..> DBHelper
+BookingPanel ..> PrintTicketPanel
+BookingPanel ..> FilmCatalog
+
+
+
+
++-----------------------------------------------------------+
+|                  SeatSelectionPanel                      |
+|                 (extends JPanel)                         |
++-----------------------------------------------------------+
+| - seatButtons: Map<String, JButton>                      |
+| - selectedSeats: Set<String>                             |
++-----------------------------------------------------------+
+| + SeatSelectionPanel()                                   |
+| + refreshSeats(filmTitle: String, time: String,          |
+|                date: String): void                       |
+| + getSelectedSeats(count: int): List<String>             |
++-----------------------------------------------------------+
+class SeatSelectionPanel {
+    - seatButtons: Map<String, JButton>
+    - selectedSeats: Set<String>
+
+    + SeatSelectionPanel()
+    + refreshSeats(filmTitle: String, time: String, date: String): void
+    + getSelectedSeats(count: int): List<String>
+}
+
+SeatSelectionPanel --|> JPanel
+SeatSelectionPanel ..> DBHelper
+
+
+
+
++-------------------------------------------------------------+
+|                    PrintTicketPanel                         |
+|       (extends JFrame, implements Printable)                |
++-------------------------------------------------------------+
+| - name: String                                              |
+| - film: String                                              |
+| - date: String                                              |
+| - time: String                                              |
+| - seats: List<String>                                       |
++-------------------------------------------------------------+
+| + PrintTicketPanel(name: String, film: String,              |
+|                    date: String, time: String,              |
+|                    seats: List<String>)                     |
+| - createInfoLabel(label: String, value: String, font: Font):|
+|     JPanel                                                  |
+| - printTicket(): void                                       |
+| + print(g: Graphics, pf: PageFormat,                        |
+|         pageIndex: int): int                                |
++-------------------------------------------------------------+
+class PrintTicketPanel {
     - name: String
-    - capacity: int
-    + getId(): int
-    + getName(): String
-    + getCapacity(): int
-}
-
-class ShowTime {
-    - id: int
-    - filmId: int
-    - time: String
+    - film: String
     - date: String
-    + getId(): int
-    + getFilmId(): int
-    + getTime(): String
-    + getDate(): String
+    - time: String
+    - seats: List<String>
+
+    + PrintTicketPanel(name: String, film: String, date: String, time: String, seats: List<String>)
+    - createInfoLabel(label: String, value: String, font: Font): JPanel
+    - printTicket(): void
+    + print(g: Graphics, pf: PageFormat, pageIndex: int): int
 }
 
-class Booking {
-    - id: int
-    - filmTitle: String
-    - showDate: String
-    - showTime: String
-    - selectedSeats: List<String>
-    + getBookingInfo(): String
+PrintTicketPanel --|> JFrame
+PrintTicketPanel ..|> Printable
+PrintTicketPanel ..> FilmCatalog
+PrintTicketPanel ..> DBHelper
+
+
+
+
++------------------------------------------------------+
+|                 AdminLoginFrame                      |
+|                (extends JFrame)                      |
++------------------------------------------------------+
+| - usernameField: JTextField                          |
+| - passwordField: JPasswordField                      |
++------------------------------------------------------+
+| + AdminLoginFrame()                                  |
++------------------------------------------------------+
+class AdminLoginFrame {
+    - usernameField: JTextField
+    - passwordField: JPasswordField
+
+    + AdminLoginFrame()
 }
 
-class Admin {
-    - username: String
-    - password: String
-    + login(): boolean
+AdminLoginFrame --|> JFrame
+AdminLoginFrame ..> DBHelper
+AdminLoginFrame ..> AdminPanel
+
+
+
+
++---------------------------------------------------------------+
+|                         AdminPanel                            |
+|                    (extends JFrame)                           |
++---------------------------------------------------------------+
+| - table: JTable                                               |
+| - model: DefaultTableModel                                    |
++---------------------------------------------------------------+
+| + AdminPanel()                                                |
+| - loadBookings(): void                                        |
++---------------------------------------------------------------+
+class AdminPanel {
+    - table: JTable
+    - model: DefaultTableModel
+
+    + AdminPanel()
+    - loadBookings(): void
+}
+
+AdminPanel --|> JFrame
+AdminPanel ..> DBHelper
+AdminPanel ..> FilmManagerFrame
+AdminPanel ..> StudioManagerFrame
+
+
+
+
++---------------------------------------------------------------+
+|                     FilmManagerFrame                          |
+|                   (extends JFrame)                            |
++---------------------------------------------------------------+
+| - model: DefaultTableModel                                    |
+| - table: JTable                                               |
+| - imagePreview: JLabel                                        |
+| - selectedImagePath: String                                   |
+| - activeCheckbox: JCheckBox                                   |
+| - filmTitleField: JTextField                                  |
+| - showtimeCheckboxes: List<JCheckBox>                         |
+| - predefinedShowtimes: String[]                               |
+| - addButton, editButton, deleteButton, clearButton: JButton   |
+| - browseImageButton: JButton                                  |
++---------------------------------------------------------------+
+| + FilmManagerFrame()                                          |
+| - browseImage(e: ActionEvent): void                           |
+| - addFilm(): void                                             |
+| - updateFilm(): void                                          |
+| - deleteFilm(): void                                          |
+| - loadFilms(): void                                           |
+| - clearForm(): void                                           |
+| - fillFormFromSelectedRow(): void                             |
+| - generateNextFilmId(conn: Connection): String                |
+| - getSelectedShowtimes(): List<String>                        |
+| - setSelectedShowtimes(times: String[]): void                 |
++---------------------------------------------------------------+
+class FilmManagerFrame {
+    - model: DefaultTableModel
+    - table: JTable
+    - imagePreview: JLabel
+    - selectedImagePath: String
+    - activeCheckbox: JCheckBox
+    - filmTitleField: JTextField
+    - showtimeCheckboxes: List<JCheckBox>
+    - predefinedShowtimes: String[]
+    - addButton: JButton
+    - editButton: JButton
+    - deleteButton: JButton
+    - clearButton: JButton
+    - browseImageButton: JButton
+
+    + FilmManagerFrame()
+    - browseImage(e: ActionEvent): void
+    - addFilm(): void
+    - updateFilm(): void
+    - deleteFilm(): void
+    - loadFilms(): void
+    - clearForm(): void
+    - fillFormFromSelectedRow(): void
+    - generateNextFilmId(conn: Connection): String
+    - getSelectedShowtimes(): List<String>
+    - setSelectedShowtimes(times: String[]): void
+}
+
+FilmManagerFrame --|> JFrame
+
+
+
+
+| Class                | Peran                                                                 |
+| -------------------- | --------------------------------------------------------------------- |
+| `Main`               | Entry point aplikasi, memanggil `FilmCatalog`.                        |
+| `FilmCatalog`        | JFrame utama yang menampilkan daftar film ke pengguna.                |
+| `SeatSelectionPanel` | Panel pemilihan kursi, menangani logika seleksi dan validasi kursi.   |
+| `BookingPanel`       | Panel untuk pemesanan tiket, terhubung dengan `SeatSelectionPanel`.   |
+| `AdminLoginFrame`    | Form login admin.                                                     |
+| `AdminPanel`         | Panel admin untuk mengelola pemesanan dan membuka kelola film/studio. |
+| `FilmManagerFrame`   | Frame untuk mengelola daftar film.                                    |
+| `StudioManagerFrame` | Frame untuk mengelola daftar studio.                                  |
+| `DBHelper`           | Utilitas statis untuk koneksi database dan operasi CRUD.              |
+
+class Main {
+    +main(args: String[]): void
+}
+
+class FilmCatalog {
+    +FilmCatalog()
+}
+
+class BookingPanel {
+    +BookingPanel()
+}
+
+class SeatSelectionPanel {
+    +SeatSelectionPanel()
+    +refreshSeats(title: String, time: String, date: String): void
+    +getSelectedSeats(count: int): List<String>
+}
+
+class AdminLoginFrame {
+    +AdminLoginFrame()
+}
+
+class AdminPanel {
+    +AdminPanel()
+}
+
+class FilmManagerFrame {
+    +FilmManagerFrame()
+}
+
+class StudioManagerFrame {
+    +StudioManagerFrame()
 }
 
 class DBHelper {
-    + getFilmList(): List<Film>
-    + getShowTimes(filmId: int): List<ShowTime>
-    + getBookedSeats(film: String, date: String, time: String): List<String>
-    + bookSeats(film: String, date: String, time: String, seats: List<String>): void
-    + getStudioList(): List<Studio>
+    +loginAdmin(user: String, pass: String): boolean
+    +getAllBookings(): List<String[]>
+    +deleteBooking1(id: String): void
+    +getBookedSeats(title: String, time: String, date: String): List<String>
+    ...
 }
 
-Film "1" --> "*" ShowTime
-Studio "1" --> "*" Film
-ShowTime "1" --> "*" Booking
-Booking --> DBHelper : uses
-Admin --> DBHelper : manages
+Main --> FilmCatalog
+FilmCatalog --> BookingPanel
+BookingPanel --> SeatSelectionPanel
+AdminLoginFrame --> AdminPanel
+AdminPanel --> FilmManagerFrame
+AdminPanel --> StudioManagerFrame
+* --> DBHelper : <<static>>
 
-@enduml
 
 
-@startuml
-' ==== State Diagram: Pemesanan Kursi ====
 
-[*] --> PilihFilm
-PilihFilm --> PilihJadwal : film dipilih
-PilihJadwal --> PilihKursi : jadwal dipilih
-PilihKursi --> KonfirmasiPesanan : kursi dipilih
-KonfirmasiPesanan --> Selesai : konfirmasi
-Selesai --> [*]
-KonfirmasiPesanan --> PilihKursi : kembali pilih kursi
-PilihKursi --> PilihJadwal : kembali
-PilihJadwal --> PilihFilm : kembali
+class DBHelper {
+    - connect(): Connection
+    + saveBooking(name: String, film: String, date: String, time: String, seats: List<String>): void
+    + deleteBooking(name: String, film: String, time: String): void
+    + deleteBooking1(bookingId: String): void
+    + getBookedSeats(filmTitle: String, time: String, date: String): List<String>
+    + getAllBookings(): List<String[]>
+    + loginAdmin(username: String, password: String): boolean
+}
+class Main {
+    +main(args: String[]): void
+}
+
+class FilmCatalog {
+    +FilmCatalog()
+}
+
+class BookingPanel {
+    +BookingPanel()
+}
+
+class SeatSelectionPanel {
+    +SeatSelectionPanel()
+    +refreshSeats(title: String, time: String, date: String): void
+    +getSelectedSeats(count: int): List<String>
+}
+
+class AdminLoginFrame {
+    +AdminLoginFrame()
+}
+
+class AdminPanel {
+    +AdminPanel()
+}
+
+class FilmManagerFrame {
+    +FilmManagerFrame()
+}
+
+class StudioManagerFrame {
+    +StudioManagerFrame()
+}
+
+class DBHelper {
+    - connect(): Connection
+    + saveBooking(name: String, film: String, date: String, time: String, seats: List<String>): void
+    + deleteBooking(name: String, film: String, time: String): void
+    + deleteBooking1(bookingId: String): void
+    + getBookedSeats(filmTitle: String, time: String, date: String): List<String>
+    + getAllBookings(): List<String[]>
+    + loginAdmin(username: String, password: String): boolean
+}
+
+Main --> FilmCatalog
+FilmCatalog --> BookingPanel
+BookingPanel --> SeatSelectionPanel
+AdminLoginFrame --> AdminPanel
+AdminPanel --> FilmManagerFrame
+AdminPanel --> StudioManagerFrame
+* --> DBHelper : <<static>>
+
 
 @enduml
